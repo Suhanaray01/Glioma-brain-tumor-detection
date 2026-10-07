@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#18312f" />
+    <title>GliomaScan-HC | Research Workbench</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="GliomaScan-HC home">
+        <span class="brand-mark" aria-hidden="true">G</span>
+        <span><strong>GliomaScan-HC</strong><small>RESEARCH WORKBENCH</small></span>
+      </a>
+      <div class="system-state" id="systemState" role="status">
+        <span class="state-dot" aria-hidden="true"></span><span id="systemStateText">Checking model</span>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Workspace sections">
+      <button class="tab active" type="button" data-tab="analysis" aria-selected="true">Analysis</button>
+      <button class="tab" type="button" data-tab="performance" aria-selected="false">Test performance</button>
+      <button class="tab" type="button" data-tab="provenance" aria-selected="false">Provenance</button>
+    </nav>
+
+    <main>
+      <section class="panel active" id="analysis" aria-labelledby="analysisTitle">
+        <div class="page-heading">
+          <div><p class="eyebrow">SINGLE-SLICE REVIEW</p><h1 id="analysisTitle">MRI image analysis</h1></div>
+          <span class="sequence-tag">Sequence: unspecified</span>
+        </div>
+
+        <div class="analysis-layout">
+          <section class="input-column" aria-labelledby="imageHeading">
+            <div class="section-heading"><h2 id="imageHeading">Input image</h2><span>PNG · JPEG · BMP · TIFF</span></div>
+            <label class="drop-zone" for="fileInput" id="dropZone">
+              <span class="upload-symbol" aria-hidden="true">+</span>
+              <strong>Select an MRI image</strong>
+              <span id="fileName">No image selected</span>
+            </label>
+            <input id="fileInput" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/bmp,image/tiff" />
+            <figure class="image-frame input-preview" id="inputPreviewFrame" hidden>
+              <img id="inputPreview" alt="Selected MRI image preview" />
+            </figure>
+            <label class="explanation-select" for="explainMode">
+              Explanation method
+              <select id="explainMode">
+                <option value="hybrid_cam" selected>Hybrid-CAM · Grad-CAM + LIME</option>
+                <option value="gradcam">Grad-CAM</option>
+                <option value="none">No explanation</option>
+              </select>
+            </label>
+            <button class="primary-button" id="analyzeBtn" type="button" disabled>Analyze image</button>
+            <p class="microcopy">This research model was trained on images with unspecified MRI sequence.</p>
+          </section>
+
+          <section class="result-column" aria-labelledby="resultHeading">
+            <div class="section-heading"><h2 id="resultHeading">Model output</h2><span id="resultState">Awaiting image</span></div>
+            <div class="empty-state" id="emptyState"><span class="empty-rule"></span><p>Select an image to begin.</p></div>
+            <div class="result-content" id="resultContent" hidden>
+              <div class="classification-line">
+                <div><p class="eyebrow">CLASS OUTPUT</p><h3 id="resultLabel">—</h3></div>
+                <div class="probability"><strong id="gliomaProbability">—</strong><span>glioma probability</span></div>
+              </div>
+              <div class="probability-track" aria-label="Glioma probability"><span id="probabilityFill"></span></div>
+              <dl class="result-meta">
+                <div><dt>Model</dt><dd id="modelName">—</dd></div>
+                <div><dt>Aggregation</dt><dd id="aggregation">—</dd></div>
+                <div><dt>Inference time</dt><dd id="inferenceTime">—</dd></div>
+              </dl>
+              <div class="explanation-block">
+                <div class="section-heading"><h2 id="explanationMethod">Hybrid-CAM</h2><span id="explanationState">Not generated</span></div>
+                <figure class="image-frame heatmap-frame" id="heatmapFrame" hidden>
+                  <img id="heatmapImage" alt="Hybrid-CAM overlay combining model gradients and LIME superpixels" />
+                </figure>
+                <p class="microcopy" id="explanationNote">A heatmap is model attribution, not a tumor boundary.</p>
+                <p class="overlap-stat" id="attributionOverlap" hidden></p>
+              </div>
+              <ul class="warning-list" id="warningList"></ul>
+            </div>
+          </section>
+        </div>
+        <aside class="safety-note"><strong>Research use only.</strong> Not clinically validated and not for diagnosis or treatment decisions.</aside>
+      </section>
+
+      <section class="panel" id="performance" aria-labelledby="performanceTitle">
+        <div class="page-heading">
+          <div><p class="eyebrow">HELD-OUT EVALUATION</p><h1 id="performanceTitle">Test performance</h1></div>
+          <span class="sequence-tag" id="testCount">Loading report</span>
+        </div>
+        <div id="metricsState" class="empty-state"><span class="empty-rule"></span><p>Loading saved evaluation…</p></div>
+        <div id="metricsContent" hidden>
+          <div class="metric-grid" id="metricGrid"></div>
+          <div class="provenance-strip">
+            <div><span>Dataset</span><strong id="metricDataset">—</strong></div>
+            <div><span>Model</span><strong id="metricModel">—</strong></div>
+            <div><span>Split</span><strong>Provided test set</strong></div>
+          </div>
+          <p class="caveat" id="metricCaveat"></p>
+        </div>
+        <aside class="safety-note"><strong>Interpret with care.</strong> These results describe this dataset split only; they are not paper-reproduction or clinical performance.</aside>
+      </section>
+
+      <section class="panel" id="provenance" aria-labelledby="provenanceTitle">
+        <div class="page-heading"><div><p class="eyebrow">DATA &amp; MODEL</p><h1 id="provenanceTitle">Provenance</h1></div></div>
+        <div class="provenance-list">
+          <div><span>Source</span><strong>masoudnickparvar/brain-tumor-mri-dataset</strong></div>
+          <div><span>Task</span><strong>Glioma vs. notumor-labeled images</strong></div>
+          <div><span>Model</span><strong>InceptionV3 · frozen-backbone feature extraction · 2 epochs</strong></div>
+          <div><span>Interpretability</span><strong>Grad-CAM or Hybrid-CAM (Grad-CAM + LIME); attribution only, not segmentation</strong></div>
+        </div>
+        <p class="caveat">The dataset does not specify MRI sequence. Its “notumor” class is not a clinically confirmed normal cohort. Results do not establish T2-FLAIR-specific performance.</p>
+        <aside class="safety-note"><strong>Research and education only.</strong> This software is not a medical device and must not guide care.</aside>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
